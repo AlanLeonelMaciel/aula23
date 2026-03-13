@@ -81,7 +81,7 @@ Create a detailed step-by-step implementation plan.
 """
 
 response = client.chat.completions.create(
-    model="deepseek-r1-distill-llama-70b",
+    model="llama-3.3-70b-versatile",
     messages=[{"role": "user", "content": prompt}]
 )
 
@@ -96,7 +96,7 @@ git commit -m "AI implementation plan"
 
 echo "Implementing feature..."
 
-aider --model groq/deepseek-r1-distill-llama-70b <<EOF
+aider --model groq/llama-3.3-70b-versatile <<EOF
 Implementation plan:
 
 $PLAN
@@ -121,7 +121,7 @@ fi
 
 if [ "$TEST_FAILED" = true ]; then
   echo "Tests failed, attempting AI auto fix..."
-  aider --model groq/deepseek-r1-distill-llama-70b <<EOF
+  aider --model groq/llama-3.3-70b-versatile <<EOF
 Tests are failing. Analyze the errors and fix the code.
 EOF
   # Trackear fixes si los hubo
@@ -160,7 +160,7 @@ Diff:
 """
 
 response = client.chat.completions.create(
-    model="deepseek-r1-distill-llama-70b",
+    model="llama-3.3-70b-versatile",
     messages=[{"role": "user", "content": prompt}]
 )
 
@@ -197,7 +197,7 @@ Return the full updated memory document.
 """
 
 response = client.chat.completions.create(
-    model="deepseek-r1-distill-llama-70b",
+    model="llama-3.3-70b-versatile",
     messages=[{"role": "user", "content": prompt}]
 )
 
