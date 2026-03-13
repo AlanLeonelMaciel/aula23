@@ -1,0 +1,42 @@
+name: AI Issue Agent
+
+on:
+  issues:
+    types: [opened, labeled]
+
+jobs:
+  ai-agent:
+    if: contains(github.event.issue.labels.*.name, 'ai-task')
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: read
+
+    steps:
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install aider-chat google-generativeai
+          sudo apt-get update
+          sudo apt-get install -y tree jq gh nodejs npm
+
+      - name: Run AI agent
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./scripts/ai-agent.sh
