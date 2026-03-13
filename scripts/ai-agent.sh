@@ -7,6 +7,7 @@ echo "Starting AI agent..."
 NUMBER=$ISSUE_NUMBER
 TITLE=$ISSUE_TITLE
 BODY=$ISSUE_BODY
+export AI_MODEL="llama-3.1-8b-instant"
 
 BRANCH="ai-issue-$NUMBER"
 
@@ -81,7 +82,7 @@ Create a detailed step-by-step implementation plan.
 """
 
 response = client.chat.completions.create(
-    model="llama-3.3-70b-versatile",
+    model=os.environ.get("AI_MODEL"),
     messages=[{"role": "user", "content": prompt}]
 )
 
@@ -96,7 +97,7 @@ git commit -m "AI implementation plan"
 
 echo "Implementing feature..."
 
-aider --model groq/llama-3.3-70b-versatile --yes --message "Implementation plan: $PLAN. Follow the plan carefully. Modify or create files as needed. Make clean logical commits."
+aider --model groq/$AI_MODEL --yes --message "Implementation plan: $PLAN. Follow the plan carefully. Modify or create files as needed. Make clean logical commits."
 
 # FORZAR TRACKEO DE ARCHIVOS NUEVOS
 git add .
@@ -113,7 +114,7 @@ fi
 
 if [ "$TEST_FAILED" = true ]; then
   echo "Tests failed, attempting AI auto fix..."
-  aider --model groq/llama-3.3-70b-versatile --yes --message "Tests are failing. Analyze the errors and fix the code."
+  aider --model groq/$AI_MODEL --yes --message "Tests are failing. Analyze the errors and fix the code."
   # Trackear fixes si los hubo
   git add .
   git commit -m "chore: track test fixes" || true
@@ -150,7 +151,7 @@ Diff:
 """
 
 response = client.chat.completions.create(
-    model="llama-3.3-70b-versatile",
+    model=os.environ.get("AI_MODEL"),
     messages=[{"role": "user", "content": prompt}]
 )
 
@@ -187,7 +188,7 @@ Return the full updated memory document.
 """
 
 response = client.chat.completions.create(
-    model="llama-3.3-70b-versatile",
+    model=os.environ.get("AI_MODEL"),
     messages=[{"role": "user", "content": prompt}]
 )
 
