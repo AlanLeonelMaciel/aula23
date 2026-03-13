@@ -26,13 +26,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install aider-chat google-genai
+          pip install aider-chat openai
           sudo apt-get update
           sudo apt-get install -y tree jq gh nodejs npm
 
       - name: Run AI agent
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
