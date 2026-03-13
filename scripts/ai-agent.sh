@@ -78,7 +78,7 @@ Create a detailed step-by-step implementation plan.
 """
 
 response = client.models.generate_content(
-    model="gemini-1.5-flash",
+    model="gemini-2.5-flash",
     contents=prompt
 )
 
@@ -93,7 +93,7 @@ git commit -m "AI implementation plan"
 
 echo "Implementing feature..."
 
-aider --model gemini/gemini-1.5-flash <<EOF
+aider --model gemini/gemini-2.5-flash <<EOF
 Implementation plan:
 
 $PLAN
@@ -116,7 +116,7 @@ if [ "$TEST_FAILED" = true ]; then
 
 echo "Tests failed, attempting AI auto fix..."
 
-aider --model gemini/gemini-1.5-flash <<EOF
+aider --model gemini/gemini-2.5-flash <<EOF
 Tests are failing.
 
 Analyze the errors and fix the code.
@@ -155,7 +155,7 @@ Diff:
 """
 
 response = client.models.generate_content(
-    model="gemini-1.5-flash",
+    model="gemini-2.5-flash",
     contents=prompt
 )
 
@@ -189,7 +189,7 @@ Return the full updated memory document.
 """
 
 response = client.models.generate_content(
-    model="gemini-1.5-flash",
+    model="gemini-2.5-flash",
     contents=prompt
 )
 
