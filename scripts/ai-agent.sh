@@ -96,15 +96,7 @@ git commit -m "AI implementation plan"
 
 echo "Implementing feature..."
 
-aider --model groq/llama-3.3-70b-versatile <<EOF
-Implementation plan:
-
-$PLAN
-
-Follow the plan carefully.
-Modify or create files as needed.
-Make clean logical commits.
-EOF
+aider --model groq/llama-3.3-70b-versatile --yes --message "Implementation plan: $PLAN. Follow the plan carefully. Modify or create files as needed. Make clean logical commits."
 
 # FORZAR TRACKEO DE ARCHIVOS NUEVOS
 git add .
@@ -121,9 +113,7 @@ fi
 
 if [ "$TEST_FAILED" = true ]; then
   echo "Tests failed, attempting AI auto fix..."
-  aider --model groq/llama-3.3-70b-versatile <<EOF
-Tests are failing. Analyze the errors and fix the code.
-EOF
+  aider --model groq/llama-3.3-70b-versatile --yes --message "Tests are failing. Analyze the errors and fix the code."
   # Trackear fixes si los hubo
   git add .
   git commit -m "chore: track test fixes" || true
