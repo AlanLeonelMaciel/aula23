@@ -1,62 +1,74 @@
-## Step 1: Initialize a Barebones NestJS Application
-To start, we'll create a new NestJS application using the Nest CLI. This will give us a basic structure to build upon.
+Implementation Plan: Setup Initial NestJS Project Structure with Clean Architecture and Repository Pattern
 
-```bash
-npm i -g @nestjs/cli
-nest new aula-23-backend
+**Step 1: Initialize a Barebones NestJS Application**
+
+1. Run the following command in your terminal to initialize a new NestJS project:
+   ```bash
+npx @nestjs/cli new aula-23-backend
 ```
+2. Follow the prompt to create a new project with the default options.
 
-## Step 2: Define the Core Directory Structure
-According to Clean Architecture principles, we need to separate our application into layers. The primary layers are:
-- `domain`: Contains the business logic and entities of the application.
-- `application`: Handles the use cases and interfaces with the domain layer.
-- `infrastructure`: Deals with external frameworks and libraries, including the database.
-- `presentation` (or `api`): Exposes the API endpoints.
+**Step 2: Define the Core Directory Structure Separating the Layers**
 
-Let's create these folders within our project:
-
-```plaintext
+1. Create the following directories in the `src` folder:
+   ```bash
 src
-├── domain
 ├── application
+├── domain
 ├── infrastructure
-├── presentation
+└── presentation
 ```
 
-And move the existing files into their respective layers. For a basic setup, we can consider the following initial move:
+2. Update the `package.json` file to reflect the new directory structure:
+   ```json
+"scripts": {
+  "lint": "eslint src/**/*.{ts,tsx}",
+  "format": "prettier --write src/**/*.{ts,tsx}",
+  "compile": "rimraf dist && tsc"
+}
+```
+3. Rename `src/controllers` to `src/presentation/controllers`:
+   ```bash
+mv src/controllers src/presentation/controllers
+```
+4. Rename `src/services` to `src/application/services`:
+   ```bash
+mv src/services src/application/services
+```
+5. Rename `src/repositories` to `src/infrastructure/repositories`:
+   ```bash
+mv src/repositories src/infrastructure/repositories
+```
+6. Rename `src/entities` to `src/domain/entities`:
+   ```bash
+mv src/entities src/domain/entities
+```
 
-- `entities` goes into `domain`
-- `services` goes into `application`
-- `repositories` goes into `infrastructure`
-- `controllers` goes into `presentation`
+**Step 3: Create a Base Generic Repository Interface (`IRepository`)**
 
-However, since we're starting from scratch, we'll adjust these as we progress.
-
-## Step 3: Create a Base Generic Repository Interface (IRepository)
-In the `domain` layer, we'll define a generic repository interface. This interface will be used by all repositories in the `infrastructure` layer to ensure consistency and abstraction.
-
-Create a file `src/domain/repositories/repository.interface.ts`:
-
-```typescript
+1. Inside the `domain` directory, create a new file called `IRepository.ts`:
+   ```bash
+src/domain/IRepository.ts
+```
+   ```typescript
+// src/domain/IRepository.ts
 export interface IRepository<T> {
   findAll(): Promise<T[]>;
-  findOne(id: number): Promise<T | null>;
+  findById(id: string): Promise<T | null>;
   create(entity: T): Promise<T>;
-  update(id: number, entity: T): Promise<T | null>;
-  remove(id: number): Promise<void>;
+  update(id: string, entity: T): Promise<T>;
+  delete(id: string): Promise<void>;
 }
 ```
 
-## Step 4: Configure Absolute Path Aliases in `tsconfig.json`
-To simplify imports across the application, we'll configure path aliases in `tsconfig.json`. This allows us to use `@domain/*`, `@application/*`, etc., for imports.
+**Step 4: Configure Absolute Path Aliases in `tsconfig.json`**
 
-Update `tsconfig.json` to include the following:
-
-```json
+1. In the `tsconfig.json` file, add the following path aliases:
+   ```json
+// tsconfig.json
 {
   "compilerOptions": {
-    // ... existing options
-    "baseUrl": "./",
+    // ...
     "paths": {
       "@domain/*": ["src/domain/*"],
       "@application/*": ["src/application/*"],
@@ -67,113 +79,126 @@ Update `tsconfig.json` to include the following:
 }
 ```
 
-## Step 5: Create a Simple "Health Check" Endpoint
-To verify that the application compiles and runs correctly, we'll create a simple "Health Check" endpoint in the `presentation` layer.
+**Step 5: Create a Simple "Health Check" Endpoint**
 
-Create a `HealthController` in `src/presentation/controllers/health.controller.ts`:
-
-```typescript
+1. Inside the `presentation` directory, create a new file called `health.controller.ts`:
+   ```bash
+src/presentation/controllers/health/health.controller.ts
+```
+   ```typescript
+// src/presentation/controllers/health/health.controller.ts
 import { Controller, Get } from '@nestjs/common';
+import { HealthService } from './health.service';
 
 @Controller('health')
 export class HealthController {
+  constructor(private readonly healthService: HealthService) {}
+
   @Get()
-  healthCheck(): string {
-    return 'OK';
+  async getHealth(): Promise<string> {
+    return 'healthy';
   }
 }
 ```
 
-And a `HealthModule` in `src/presentation/modules/health.module.ts` to register the controller:
+   ```typescript
+// src/presentation/controllers/health/health.service.ts
+import { Injectable } from '@nestjs/common';
+import { HealthCheckService } from '../healthcheck.service';
 
-```typescript
-import { Module } from '@nestjs/common';
-import { HealthController } from './health.controller';
+@Injectable()
+export class HealthService {
+  constructor(private readonly healthCheckService: HealthCheckService) {}
 
-@Module({
-  controllers: [HealthController],
-})
-export class HealthModule {}
+  async checkHealth(): Promise<string> {
+    return this.healthCheckService.checkHealth();
+  }
+}
 ```
 
-Then, import this module into the main `AppModule` in `src/app.module.ts`:
+   ```typescript
+// src/presentation/controllers/health/healthcheck.service.ts
+import { Injectable } from '@nestjs/common';
 
-```typescript
+@Injectable()
+export class HealthCheckService {
+  checkHealth(): Promise<string> {
+    return Promise.resolve('healthy');
+  }
+}
+```
+
+2. Add the `HealthController` to the `AppModule`:
+   ```typescript
+// src/main.module.ts
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { HealthModule } from '@presentation/modules/health.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [HealthModule],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
 ```
 
-## Step 6: Ensure ESLint and Prettier Are Properly Configured
-For code quality and formatting, we'll configure ESLint and Prettier. First, install the necessary packages:
+   ```typescript
+// src/health/health.module.ts
+import { Module } from '@nestjs/common';
+import { HealthController } from './health.controller';
+import { HealthService } from './health.service';
 
-```bash
-npm install --save-dev eslint @nestjs/eslint-config prettier
+@Module({
+  controllers: [HealthController],
+  providers: [HealthService],
+})
+export class HealthModule {}
 ```
 
-Then, create a `.eslintrc.json` file with the following content:
+**Step 6: Ensure ESLint and Prettier are Properly Configured**
 
-```json
+1. Install the required ESLint and Prettier configurations:
+   ```bash
+npm install --save-dev eslint prettier @typescript-eslint/parser @typescript-eslint/eslint-plugin
+```
+
+2. Create a new file called `.eslintrc.json` with the following configuration:
+   ```json
+// .eslintrc.json
 {
   "root": true,
-  "ignorePath": ".eslintignore",
-  "extends": ["@nestjs/core"],
-  "plugins": ["prettier"],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "extends": ["plugin:@typescript-eslint/recommended", "prettier"],
   "rules": {
-    "@typescript-eslint/ban-ts-comment": "off",
-    "@typescript-eslint/explicit-function-return-type": "off",
-    "prettier/prettier": "error"
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-namespace": "off",
+    "@typescript-eslint/no-misused-new": "off",
+    "prettier/prettier": "warn",
+    "no-console": "off"
   }
 }
 ```
 
-And a `.prettierrc.json` for Prettier configuration:
+3. Install the ESLint plugin for NestJS:
+   ```bash
+npm install --save-dev @nestjs/eslint-plugin
+```
 
-```json
+4. Configure ESLint to use the `@nestjs/eslint-plugin` plugin:
+   ```json
+// .eslintrc.json
 {
-  "printWidth": 100,
-  "tabWidth": 2,
-  "useTabs": false,
-  "semi": true,
-  "singleQuote": true,
-  "trailingComma": "all",
-  "bracketSpacing": true,
-  "jsxBracketSameLine": true,
-  "arrowParens": "always",
-  "proseWrap": "preserve"
+  "plugins": ["@nestjs"],
+  "extends": ["@nestjs"]
 }
 ```
 
-Add scripts to your `package.json` for linting and formatting:
+**Step 7: Verify the NestJS Application Starts Successfully**
 
-```json
-"scripts": {
-  // ... other scripts
-  "lint": "eslint \"src/**/*.ts\" --fix",
-  "prettier": "prettier --write \"src/**/*.ts\""
-}
+1. Run the following command to start the NestJS application:
+   ```
+nest start
 ```
 
-## Step 7: Verify the Application
-Start the application with `nest start` and navigate to `http://localhost:3000/health` to see the "OK" response, indicating that the health check endpoint is working correctly.
+2. Verify that the "health check" endpoint returns a `200 OK` status by navigating to `http://localhost:3000/health` in your web browser.
 
-### Conclusion
-We've successfully set up a NestJS project with Clean Architecture and the Repository pattern. This structure ensures a clear separation of concerns, making the codebase scalable, testable, and independent of external frameworks.
-
-Remember to run `npm run lint` and `npm run prettier` regularly to maintain code quality and consistency.
-
-### Acceptance Criteria
-- The NestJS application starts successfully without any compilation errors.
-- The folder structure clearly enforces Clean Architecture boundaries.
-- Path aliases are working correctly across all layers.
-- The health check endpoint returns a `200 OK` status.
-
-By following these steps, we've met all the acceptance criteria, and the project is now ready for further development.
+By following these steps, you have successfully set up an initial NestJS project structure with Clean Architecture and the Repository pattern. The project is now configured to use ESLint and Prettier for code quality and formatting, and the health check endpoint is working correctly.
