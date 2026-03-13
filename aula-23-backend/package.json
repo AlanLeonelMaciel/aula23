@@ -2,7 +2,10 @@
   "name": "aula-23-backend",
   "version": "1.0.0",
   "scripts": {
-    "start": "nest start"
+    "start": "nest start",
+    "lint": "eslint src/**/*.{ts,tsx}",
+    "format": "prettier --write src/**/*.{ts,tsx}",
+    "compile": "rimraf dist && tsc"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
