@@ -48,10 +48,9 @@ echo "Creating implementation plan..."
 
 PLAN=$(python3 <<EOF
 import os
-import google.generativeai as genai
+from google import genai
 
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-model = genai.GenerativeModel("gemini-1.5-flash")
+client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
 memory = os.environ.get("MEMORY","")
 tree = os.environ.get("TREE","")
@@ -78,7 +77,10 @@ Description: {body}
 Create a detailed step-by-step implementation plan.
 """
 
-response = model.generate_content(prompt)
+response = client.models.generate_content(
+    model="gemini-1.5-flash",
+    contents=prompt
+)
 
 print(response.text)
 EOF
@@ -132,10 +134,9 @@ echo "Running AI code review..."
 
 REVIEW=$(python3 <<EOF
 import os
-import google.generativeai as genai
+from google import genai
 
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-model = genai.GenerativeModel("gemini-1.5-flash")
+client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
 diff = os.environ.get("DIFF","")
 
@@ -153,7 +154,10 @@ Diff:
 {diff}
 """
 
-response = model.generate_content(prompt)
+response = client.models.generate_content(
+    model="gemini-1.5-flash",
+    contents=prompt
+)
 
 print(response.text)
 EOF
@@ -163,10 +167,9 @@ echo "Updating repository memory..."
 
 UPDATED_MEMORY=$(python3 <<EOF
 import os
-import google.generativeai as genai
+from google import genai
 
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-model = genai.GenerativeModel("gemini-1.5-flash")
+client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
 memory = os.environ.get("MEMORY","")
 diff = os.environ.get("DIFF","")
@@ -185,7 +188,10 @@ Update the repository memory with any new architectural or technical knowledge.
 Return the full updated memory document.
 """
 
-response = model.generate_content(prompt)
+response = client.models.generate_content(
+    model="gemini-1.5-flash",
+    contents=prompt
+)
 
 print(response.text)
 EOF
