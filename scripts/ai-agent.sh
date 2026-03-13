@@ -51,7 +51,7 @@ import os
 import google.generativeai as genai
 
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-model = genai.GenerativeModel("gemini-1.5-pro")
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 memory = os.environ.get("MEMORY","")
 tree = os.environ.get("TREE","")
@@ -91,7 +91,7 @@ git commit -m "AI implementation plan"
 
 echo "Implementing feature..."
 
-aider --model gemini/gemini-1.5-pro <<EOF
+aider --model gemini/gemini-1.5-flash <<EOF
 Implementation plan:
 
 $PLAN
@@ -114,7 +114,7 @@ if [ "$TEST_FAILED" = true ]; then
 
 echo "Tests failed, attempting AI auto fix..."
 
-aider --model gemini/gemini-1.5-pro <<EOF
+aider --model gemini/gemini-1.5-flash <<EOF
 Tests are failing.
 
 Analyze the errors and fix the code.
@@ -135,7 +135,7 @@ import os
 import google.generativeai as genai
 
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-model = genai.GenerativeModel("gemini-1.5-pro")
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 diff = os.environ.get("DIFF","")
 
@@ -166,7 +166,7 @@ import os
 import google.generativeai as genai
 
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-model = genai.GenerativeModel("gemini-1.5-pro")
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 memory = os.environ.get("MEMORY","")
 diff = os.environ.get("DIFF","")
