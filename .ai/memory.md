@@ -1,64 +1,155 @@
 # Repository Memory
 
-Language:
-TypeScript
+**Updated Memory Document**
 
-Framework:
-NestJS
+## Technical Knowledge
 
-Architecture:
-Clean Architecture with Repository pattern
+### Clean Architecture with Repository Pattern
 
-Folders:
+The project structure has been updated to include the Clean Architecture layers:
 
-* `src/domain` → Domain layer (business logic and entities)
-* `src/application` → Application layer (use cases and interfaces)
-* `src/infrastructure` → Infrastructure layer (database and external frameworks)
-* `src/presentation` → Presentation layer (API endpoints)
-* `src/controllers` → moved to `src/presentation/controllers`
-* `src/services` → moved to `src/application/services`
-* `src/repositories` → moved to `src/infrastructure/repositories`
-* `src/entities` → moved to `src/domain/entities`
+* `domain`: Contains the business logic and entities of the application.
+* `application`: Handles the use cases and interfaces with the domain layer.
+* `infrastructure`: Deals with external frameworks and libraries, including the database.
+* `presentation`: Exposes the API endpoints.
 
-Testing:
-Jest
-Unit tests
+### NestedJS
 
-Rules:
+* The project uses the `@nestjs/core` module for NestJS configuration.
+* The `HealthController` has been added to the `presentation` layer.
+* The `HealthService` has been added to the `application` layer.
 
-* Controllers must be thin
-* Business logic in services
-* Repositories handle DB access
-* Models in the entities
+### ESLint and Prettier
 
-New Technical Knowledge:
+* The project uses ESLint for code quality and formatting.
+* A `.eslintrc.json` file has been created to configure ESLint rules.
+* A `.prettierrc.json` file has been created to configure Prettier options.
+* Scripts have been added to the `package.json` file for linting and formatting.
 
-* Implemented path aliases in `tsconfig.json` for simplified imports across layers
-* Configured ESLint and Prettier for code quality and formatting
-* Created a base generic repository interface (`IRepository`) in the domain layer
-* Set up a health check endpoint in the presentation layer
+### Path Aliases
 
-Path Aliases:
+* Path aliases have been added to the `tsconfig.json` file to simplify imports across layers.
 
-* `@domain/*`: `src/domain/*`
-* `@application/*`: `src/application/*`
-* `@infrastructure/*`: `src/infrastructure/*`
-* `@presentation/*`: `src/presentation/*`
+## Recent Code Changes
 
-Recent Code Changes:
+### Folder Structure
 
-* Created a new NestJS project with Clean Architecture
-* Set up the folder structure for the domain, application, infrastructure, and presentation layers
-* Moved existing files to their respective layers
-* Implemented a generic repository interface and a health check endpoint
-* Configured ESLint and Prettier for code quality and formatting
+* The project structure has been updated to reflect the Clean Architecture layers.
+* Existing files have been moved to their respective layers.
 
-Updated Package.json:
+### Controllers
 
-* Added scripts for linting and formatting
-* Updated dependencies for NestJS and other required packages
+* A `HealthController` has been added to the `presentation` layer.
+* The `HealthController` has a `getHealth` method that returns a `200 OK` status.
 
-Updated Tsconfig.json:
+### Services
 
-* Added path aliases for simplified imports
-* Updated compiler options for the TypeScript compiler
+* A `HealthService` has been added to the `application` layer.
+* The `HealthService` has a `checkHealth` method that calls the `HealthCheckService`.
+
+### Health Check Service
+
+* A `HealthCheckService` has been added to the `presentation` layer.
+* The `HealthCheckService` has a `checkHealth` method that returns a `200 OK` status.
+
+## Updated Folders
+
+* `src/domain/IRepository.ts`: A new interface for repositories has been created.
+* `src/health/health.module.ts`: A new module for the health check service has been created.
+* `src/main.module.ts`: The `HealthModule` has been added to the `AppModule`.
+* `src/presentation/controllers/health/health.controller.ts`: A new controller for health checks has been created.
+* `src/presentation/controllers/health/health.service.ts`: A new service for health checks has been created.
+* `src/presentation/controllers/health/healthcheck.service.ts`: A new service for health checks has been created.
+
+## Updated Package.json
+
+* Scripts have been added to the `package.json` file for linting and formatting.
+
+## Updated Tsconfig.json
+
+* Path aliases have been added to the `tsconfig.json` file to simplify imports across layers.
+
+Full updated memory document:
+
+```json
+{
+  "language": "TypeScript",
+  "framework": "NestJS",
+  "architecture": "Clean Architecture with Repository Pattern",
+  "folders": [
+    {
+      "name": "domain",
+      "description": "Contains the business logic and entities of the application."
+    },
+    {
+      "name": "application",
+      "description": "Handles the use cases and interfaces with the domain layer."
+    },
+    {
+      "name": "infrastructure",
+      "description": "Deals with external frameworks and libraries, including the database."
+    },
+    {
+      "name": "presentation",
+      "description": "Exposes the API endpoints."
+    }
+  ],
+  "testing": {
+    "framework": "Jest",
+    "type": "Unit Tests"
+  },
+  "rules": {
+    "Controllers must be thin": true,
+    "Business logic in services": true,
+    "Repositories handle DB access": true,
+    "Models in the entities": true
+  },
+  "pathAliases": {
+    "@domain/*": "src/domain/*",
+    "@application/*": "src/application/*",
+    "@infrastructure/*": "src/infrastructure/*",
+    "@presentation/*": "src/presentation/*"
+  },
+  "technicalKnowledge": [
+    "Clean Architecture with Repository Pattern",
+    "NestJS",
+    "ESLint and Prettier",
+    "Path Aliases"
+  ],
+  "recentCodeChanges": [
+    "Folder structure updated to reflect Clean Architecture layers",
+    "HealthController added to presentation layer",
+    "HealthService added to application layer",
+    "HealthCheckService added to presentation layer",
+    "HealthModule added to AppModule"
+  ],
+  "updatedFolders": [
+    "src/domain/IRepository.ts",
+    "src/health/health.module.ts",
+    "src/main.module.ts",
+    "src/presentation/controllers/health/health.controller.ts",
+    "src/presentation/controllers/health/health.service.ts",
+    "src/presentation/controllers/health/healthcheck.service.ts"
+  ],
+  "updatedPackageJson": {
+    "scripts": {
+      "lint": "eslint src/**/*.{ts,tsx}",
+      "format": "prettier --write src/**/*.{ts,tsx}",
+      "compile": "rimraf dist && tsc"
+    }
+  },
+  "updatedTsconfigJson": {
+    "compilerOptions": {
+      "baseUrl": "./",
+      "paths": {
+        "@domain/*": ["src/domain/*"],
+        "@application/*": ["src/application/*"],
+        "@infrastructure/*": ["src/infrastructure/*"],
+        "@presentation/*": ["src/presentation/*"]
+      }
+    }
+  }
+}
+```
+
+Note that this is a condensed version of the updated memory document. The original document is provided in the snippet above.

@@ -1,0 +1,4 @@
+mv src/controllers src/presentation/controllers
+mv src/services src/application/services
+mv src/repositories src/infrastructure/repositories
+mv src/entities src/domain/entities
