@@ -28,43 +28,59 @@ fi
 
 echo "Analyzing repository structure..."
 
-TREE=$(tree -L 4 -I "node_modules|dist|build|.git")
+TREE=$(tree -L 4 -I "node_modules|dist|build|.git" || echo "tree unavailable")
 
-CONTEXT=$(find . -type f \
- -name "*.ts" -o \
- -name "*.js" -o \
- -name "*.py" \
- | head -n 20 \
- | xargs cat)
+echo "Collecting code context..."
+
+CONTEXT=$(find . -type f \( \
+-name "*.ts" -o \
+-name "*.js" -o \
+-name "*.py" \
+\) | head -n 20 | xargs cat 2>/dev/null || true)
+
+export MEMORY
+export TREE
+export CONTEXT
+export TITLE
+export BODY
 
 echo "Creating implementation plan..."
 
-PLAN=$(python - <<EOF
-import os, google.generativeai as genai
+PLAN=$(python3 <<EOF
+import os
+import google.generativeai as genai
 
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 model = genai.GenerativeModel("gemini-1.5-pro")
 
+memory = os.environ.get("MEMORY","")
+tree = os.environ.get("TREE","")
+context = os.environ.get("CONTEXT","")
+title = os.environ.get("TITLE","")
+body = os.environ.get("BODY","")
+
 prompt = f"""
-You are a senior software architect.
+You are a senior software architect AI agent.
 
 Repository memory:
-{MEMORY}
+{memory}
 
 Repository structure:
-{TREE}
+{tree}
 
 Code context:
-{CONTEXT}
+{context}
 
 Issue:
-Title: {TITLE}
-Description: {BODY}
+Title: {title}
+Description: {body}
 
-Create a detailed step-by-step plan.
+Create a detailed step-by-step implementation plan.
 """
 
-print(model.generate_content(prompt).text)
+response = model.generate_content(prompt)
+
+print(response.text)
 EOF
 )
 
@@ -80,8 +96,9 @@ Implementation plan:
 
 $PLAN
 
-Follow this plan to implement the feature.
-Create logical commits.
+Follow the plan carefully.
+Modify or create files as needed.
+Make clean logical commits.
 EOF
 
 echo "Running tests..."
@@ -95,70 +112,97 @@ fi
 
 if [ "$TEST_FAILED" = true ]; then
 
-echo "Tests failed, attempting auto fix..."
+echo "Tests failed, attempting AI auto fix..."
 
 aider --model gemini/gemini-1.5-pro <<EOF
-Tests failed.
+Tests are failing.
 
-Fix the issues based on test failures.
+Analyze the errors and fix the code.
 EOF
 
 fi
 
-echo "Running AI code review..."
+echo "Preparing diff..."
 
 DIFF=$(git diff main)
 
-REVIEW=$(python - <<EOF
-import os, google.generativeai as genai
+export DIFF
+
+echo "Running AI code review..."
+
+REVIEW=$(python3 <<EOF
+import os
+import google.generativeai as genai
 
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 model = genai.GenerativeModel("gemini-1.5-pro")
 
+diff = os.environ.get("DIFF","")
+
 prompt = f"""
-You are a senior engineer performing a code review.
+You are a senior software engineer performing a code review.
 
-Review this diff:
+Review the following diff and detect:
 
-{DIFF}
+- bugs
+- security issues
+- improvements
+- architecture problems
 
-Detect possible bugs or improvements.
+Diff:
+{diff}
 """
 
-print(model.generate_content(prompt).text)
+response = model.generate_content(prompt)
+
+print(response.text)
 EOF
 )
 
 echo "Updating repository memory..."
 
-UPDATED_MEMORY=$(python - <<EOF
-import os, google.generativeai as genai
+UPDATED_MEMORY=$(python3 <<EOF
+import os
+import google.generativeai as genai
 
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 model = genai.GenerativeModel("gemini-1.5-pro")
 
+memory = os.environ.get("MEMORY","")
+diff = os.environ.get("DIFF","")
+
 prompt = f"""
-Update repository memory based on new code changes.
+You maintain the repository memory.
 
 Current memory:
-{MEMORY}
+{memory}
 
-Changes:
-{DIFF}
+Recent code changes:
+{diff}
 
-Return the updated memory file.
+Update the repository memory with any new architectural or technical knowledge.
+
+Return the full updated memory document.
 """
 
-print(model.generate_content(prompt).text)
+response = model.generate_content(prompt)
+
+print(response.text)
 EOF
 )
+
+mkdir -p .ai
 
 echo "$UPDATED_MEMORY" > .ai/memory.md
 
 git add .ai/memory.md
-git commit -m "update AI memory"
+git commit -m "update AI repository memory"
+
+echo "Pushing branch..."
 
 git push origin "$BRANCH"
+
+echo "Creating Pull Request..."
 
 gh pr create \
  --title "AI: $TITLE" \
@@ -168,10 +212,14 @@ $BODY
 
 ---
 
-### Implementation Plan
+## Implementation Plan
+
 $PLAN
 
 ---
 
-### AI Code Review
+## AI Code Review
+
 $REVIEW"
+
+echo "AI agent completed successfully."
