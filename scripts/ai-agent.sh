@@ -33,11 +33,8 @@ TREE=$(tree -L 4 -I "node_modules|dist|build|.git" || echo "tree unavailable")
 
 echo "Collecting code context..."
 
-CONTEXT=$(find . -type f \( \
--name "*.ts" -o \
--name "*.js" -o \
--name "*.py" \
-\) | head -n 20 | xargs cat 2>/dev/null || true)
+# Solo busca en src/, solo TypeScript, y corta a los 3000 caracteres
+CONTEXT=$(find src -type f -name "*.ts" | head -n 10 | xargs cat 2>/dev/null | head -c 3000 || true)
 
 export MEMORY
 export TREE
@@ -121,7 +118,8 @@ if [ "$TEST_FAILED" = true ]; then
 fi
 
 echo "Preparing diff..."
-DIFF=$(git diff main)
+# Ignora package-lock.json y recorta el diff a 3000 caracteres máximo
+DIFF=$(git diff main -- . ':(exclude)package-lock.json' ':(exclude)dist/*' | head -c 3000)
 export DIFF
 
 echo "Running AI code review..."
